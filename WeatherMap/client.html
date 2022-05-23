@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Map</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script async>
+        let map;
+
+        function initMap() {
+            const myLatlng = { lat: -31.022792008883584, lng: 24.016213402563718 };
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 5,
+                center: myLatlng,
+            });
+
+            let coordinates;
+
+            map.addListener("click", (mapsMouseEvent) => {
+                coordinates = new google.maps.InfoWindow({
+                    position: mapsMouseEvent.latLng,
+                });
+                coordinates.setContent(
+                    JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
+                );
+
+                // to get seperated values
+                let lat = coordinates.content.substring(
+                    coordinates.content.indexOf(":") + 1,
+                    coordinates.content.lastIndexOf(",")
+                );
+                let altlng = coordinates.content.split(":").pop().split(",")[0];
+                let lng = altlng.substring(0, altlng.length - 1);
+
+                Req(lat, lng);
+            });
+
+           
+            // Jquery Ajax function using GET method
+            function Req(lat, lng) {
+                $.ajax({
+                    type: "GET",
+                    url: "http://127.0.0.1:5000/",
+                    data: {
+                        lat: lat,
+                        lng: lng,
+                    },
+                    // dataType: "json"
+                    success: function (response) {
+
+                        // Function to create the table
+                        function buildTable(response) {
+                            
+                            for (let i = 0; i < response.length; i++) {
+                                let myTable = "myTable" + i;
+                                let table = document.getElementById(myTable)
+
+                                /* function to clear Table content*/
+                                function clearBox() {
+                                    document.getElementById(myTable).innerHTML = "";
+                                }
+
+                                clearBox()
+
+                                let startTime = `<tr><td>${response[i].startTime.substring(0, 10)} ${response[i].startTime.substring(11, 16)} </td></tr>`
+                                let temperature = `<tr><td>Temperature: ${response[i].values.temperature}</td></tr>`
+                                let cloudCover = `<tr><td>Cloud Cover: ${response[i].values.cloudCover}</td></tr>`
+                                let windSpeed = `<tr><td>Wind Speed: ${response[i].values.windSpeed}</td></tr>`
+                                // let windDir = `<tr><td>Wind Direction: ${response[i].values.windDirection}</td></tr>`
+
+                                let windDirAngle = `${response[i].values.windDirection}`
+                                let WDA = parseFloat(windDirAngle) + "deg"
+                                
+
+                                table.innerHTML += startTime
+                                table.innerHTML += temperature
+                                table.innerHTML += cloudCover
+                                table.innerHTML += windSpeed
+                                table.innerHTML += `Wind Direction: <svg height="25" width="25" style="transform: rotate(${WDA})"><polygon points="12.5,3 5,20 20,20" id="triangle" />Sorry, your browser does not support inline SVG.</svg>`
+                            }
+                        }
+
+                        buildTable(response)
+                    },
+
+                    error: function (response) {
+                        alert("Unable to connect to Weather service");
+                    },
+                });
+            }
+        }
+    </script>
+    <style>
+         /* Always set the map height explicitly to define the size of the div
+        * element that contains the map. */
+         #map {
+             height: 60%;
+         }
+
+         /* Optional: Makes the sample page fill the window. */
+         html,
+         body {
+             height: 100%;
+             margin: 0;
+             padding: 0;
+         }
+
+         /*Table styling*/
+        table {
+            border: 1px solid black;
+            display: inline-table;
+            width: 16.45%;
+        }
+
+        /*SVG triangle*/
+        svg {
+            fill: blue;
+            transition: all 2.5s ease-in-out;
+        }
+    </style>
+    <!-- jsFiddle will insert css and js -->
+</head>
+<body>
+    <div id="map"></div>
+    <div id="weather">
+        <table>
+            <tbody id="myTable0"></tbody>
+        </table>
+        <table>
+            <tbody id="myTable1"></tbody>
+        </table>
+        <table>
+            <tbody id="myTable2"></tbody>
+        </table>
+        <table>
+            <tbody id="myTable3"></tbody>
+        </table>
+        <table>
+            <tbody id="myTable4"></tbody>
+        </table>
+        <table>
+            <tbody id="myTable5"></tbody>
+        </table>
+        <table>
+            <tbody id="myTable6"></tbody>
+        </table>
+        <table>
+            <tbody id="myTable7"></tbody>
+        </table>
+        <table>
+            <tbody id="myTable8"></tbody>
+        </table>
+        <table>
+            <tbody id="myTable9"></tbody>
+        </table>
+        <table>
+            <tbody id="myTable10"></tbody>
+        </table>
+        <table>
+            <tbody id="myTable11"></tbody>
+        </table>
+    </div>
+
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&callback=initMap&v=weekly&channel=2"
+            async></script>
+</body>
+</html>
